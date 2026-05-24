@@ -1,0 +1,14 @@
+{% for a in agents %}
+<tr>
+  <td>{{ a.hostname }}</td>
+  <td>{{ a.username }}</td>
+  <td>{{ a.os }}</td>
+  <td>{{ a.ip }}</td>
+  <td>{{ a.last_seen.strftime('%Y-%m-%d %H:%M:%S') if a.last_seen else '---' }}</td>
+  <td class="status-{{ a.status }}">{{ a.status }}</td>
+  <td>{{ a.tasks.filter_by(status='pending').count() }}</td>
+  <td><button class="btn btn-cmd" onclick="openModal('{{ a.id }}')">Cmd</button></td>
+</tr>
+{% else %}
+<tr><td colspan="8" style="text-align:center;color:#8b949e;padding:32px">No agents connected yet</td></tr>
+{% endfor %}

